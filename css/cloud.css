@@ -1,0 +1,64 @@
+#cloud > #fog {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	right: 0px;
+	bottom: 0px;
+	background: black;
+	opacity: 0.5;
+}
+#cloud > #cloud-component {
+	position: absolute;
+	top: 100px;
+	left: calc(50% - 210px);
+	right: calc(50% - 210px);
+	height: auto;
+	background: white;
+	outline: 1px solid black;
+	z-index: 2;
+}
+#cloud-component > h1 {
+	margin: 0px;
+	line-height: 50px;
+	text-align: center;
+	background: #222222;
+	color: white;
+	font-weight: bold;
+}
+.warning, .info {
+	text-align: center;
+}
+.warning { color: red; }
+.info { color: lightgreen; }
+
+
+div.form > div {
+	min-height: 30px;
+	height: auto;
+	margin: 10px 15px;
+	line-height: 30px;
+}
+div.form input {
+	height: 22px;
+	margin: 4px 0px;
+}
+div.form input,
+div.form select,
+div.form textarea {
+	float: right;
+	width: 300px;
+}
+div.form textarea {
+	height: 130px;
+	resize: none;
+}
+div.form > div.higher {
+	height: 150px;
+}
+div.form > div:last-child > button {
+	float: right;
+	margin-left: 15px;
+	margin-bottom: 15px;
+	padding: 5px 10px;
+	font-size: 14px;
+}

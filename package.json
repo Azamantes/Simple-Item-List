@@ -1,0 +1,12 @@
+{
+  "name": "stuff",
+  "version": "0.1.0",
+  "main": "main.js",
+  "scripts": {
+    "grunt": "grunt --force --no-write"
+  },
+  "dependencies": {
+    "grunt": "latest",
+    "grunt-contrib-watch": "latest"
+  }
+}
