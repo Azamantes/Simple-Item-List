@@ -5,32 +5,22 @@ function cancel(event) {
 	for (let key of Object.keys(this.$refs)) {
 		this.$refs[key].value = '';
 	}
-	clearTimeout(this.$data.timer);
+
 	this.channel.$emit('close.cloud');
 };
-// function setTimer() {
-// 	setTimeout(() => {
-// 		this.$data.info = this.$data.warn = false;
-// 		if ('invalid' in this.$data) {
-// 			this.$data.invalid = false;
-// 		}
-// 	}, 1e3);
-// };
-const getData = () => ({
-	timer: 0,
-	info: false,
-	warn: false,
-});
 
 const App = new Vue({
 	template: `
 		<div id='app' class='noselect'>
 			<div id='controls'>
 				<vue-types ref='types'></vue-types>
-				<input placeholder='Czego szukasz?' @input='filterName'>
-				<button @click='addElement'>Dodaj element</button>
-				<button @click='addType'>Dodaj typ</button>
-				<label><input type='checkbox' @change='showDesc' ref='config_desc'>Pokaż opisy</label>
+				<input placeholder='Search...' @input='filterName'>
+				<button @click='addElement'>Add item</button>
+				<button @click='addType'>Add type</button>
+				<label>
+					<input type='checkbox' @change='showDesc' ref='config_desc'>
+					Show descriptions
+				</label>
 			</div>
 			<vue-items ref='table' :channel='channel'></vue-items>
 			<div id='cloud' v-if='cloud'>
@@ -73,11 +63,9 @@ const App = new Vue({
 		$alert: {
 			template: `
 				<div>
-					<h1>Alert</h1>
+					<h2>Alert</h2>
 					<div class='form'>
-						<h3 class='warning'>
-							Lista typów jest pusta (wymagane >= 1).
-						</h3>
+						<h3 class='warning'>List of types is empty (at least 1 required).</h3>
 						<div>
 							<button @click='cancel'>OK</button>
 						</div>
@@ -94,38 +82,32 @@ const App = new Vue({
 				</div>
 			`,
 			props: ['channel', 'image'],
-			data: () => ({
-				src: '',
-			}),
+			data: () => ({ src: '' }),
 		},
 		$element: {
 			template: `
 				<div>
-					<h1>{{ mode }} element</h1>
+					<h2>{{ mode }} element</h2>
 					<div class='form'>
 
 						<h3 v-if='warn' class='warning'>
-							Element o takiej nazwie juz istnieje.
+							This name is used already.
 						</h3>
 						<h3 v-else-if='invalid' class='warning'>
-							Niepoprawna nazwa.
-						</h3>
-						<h3 v-else-if='info' class='info'>
-							Dodano nowy typ.
+							Invalid name.
 						</h3>
 
-						<div>Nazwa:
-							<input ref='name'	@keydown.enter='commit'
-							placeholder='nazwa przedmiotu'>
+						<div>Name:
+							<input ref='name'	@keydown.enter='commit' placeholder='name'>
 						</div>
-						<div>Sztuk: <input ref='amount' type='number' min='0' step='1'
+						<div>Quantity: <input ref='amount' type='number' min='0' step='1'
 							pattern='^[0-9]+$' placeholder='sztuk' value='1'>
 						</div>
-						<div>Typ: <vue-types ref='type'></vue-types></div>
+						<div>Type: <vue-types ref='type'></vue-types></div>
 						<div>Image: <input type='file' ref='image'></div>
-						<div class='higher'>Opis: <textarea ref='desc' placeholder='Opis przedmiotu...'></textarea></div>
+						<div class='higher'>Description: <textarea ref='desc' placeholder='Description...'></textarea></div>
 						<div>
-							<button @click='cancel'>Anuluj</button>
+							<button @click='cancel'>Cancel</button>
 							<button @click='commit'>{{ mode }}</button>
 						</div>
 					</div>
@@ -133,11 +115,12 @@ const App = new Vue({
 			`,
 			props: ['channel', 'toChange'],
 			created() {
-				this.mode = (this.toChange === null) ? 'Dodaj' : 'Zmień';
+				this.mode = (this.toChange === null) ? 'Add' : 'Update';
 			},
-			data: () => Object.assign({}, getData(), {
+			data: () => ({
 				invalid: false,
 				mode: '',
+				warn: false,
 			}),
 			mounted() {
 				if (this.toChange !== null) {
@@ -151,7 +134,6 @@ const App = new Vue({
 			},
 			methods: {
 				commit() {
-					clearTimeout(this.$data.timer);
 					const name = this.$refs.name.value;
 					const amount = Math.abs(+this.$refs.amount.value);
 					const type = this.$refs.type.$el.value;
@@ -177,7 +159,6 @@ const App = new Vue({
 
 					this.$data.invalid = false;
 					this.$data.warn = list.some(item => (item.name === name));
-					this.$data.info = !this.$data.warn;
 					!this.$data.warn && list.push({
 						name,
 						amount,
@@ -217,39 +198,42 @@ const App = new Vue({
 		$type: {
 			template: `
 				<div>
-					<h1>Dodaj typ</h1>
+					<h2>Add type</h2>
 					<div class='form'>
-						<h3 v-if='warn' class='warning'>
-							Ten typ już istnieje.
+						<h3 v-if='empty' class='warning'>
+							Name is empty.
 						</h3>
-						<h3 v-if='info' class='info'>
-							Dodano nowy typ.
+						<h3 v-else-if='exists' class='warning'>
+							This type already exists.
 						</h3>
-						<div>Nazwa: <input ref='name' v-on:keydown.enter='add'></div>
+						<div>Name: <input ref='name' v-on:keydown.enter='add' placeholder='name'></div>
 						<div>
-							<button @click='cancel'>Anuluj</button>
-							<button @click='add'>Dodaj</button>
+							<button @click='cancel'>Cancel</button>
+							<button @click='add'>Add</button>
 						</div>
 					</div>
 				</div>
 			`,
 			props: ['channel'],
-			data: getData,
+			data: () => ({
+				empty: false,
+				exists: false,
+			}),
 			mounted() {
 				this.$refs.name.focus();	
 			},
 			methods: {
 				add(event) {
 					const name = this.$refs.name.value;
-
-					this.$data.warn = types.includes(name)
-					this.$data.info = !this.$data.warn;
-					if (this.$data.warn) {
+					if (this.$data.empty = !name) {
+						return;
+					}
+					if (this.$data.exists = types.includes(name)) {
 						return;
 					}
 
-					this.$refs.name.value = '';
 					types.push(name);
+					types.sort();
 					store.set('types', types);
 					this.channel.$emit('close.cloud');
 				},

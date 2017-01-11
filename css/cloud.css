@@ -9,15 +9,15 @@
 }
 #cloud > #cloud-component {
 	position: absolute;
-	top: 100px;
-	left: calc(50% - 210px);
-	right: calc(50% - 210px);
+	top: 50px;
+	left: calc(50% - 220px);
+	right: calc(50% - 220px);
 	height: auto;
 	background: white;
 	outline: 1px solid black;
 	z-index: 2;
 }
-#cloud-component > h1 {
+#cloud-component > h2 {
 	margin: 0px;
 	line-height: 50px;
 	text-align: center;
@@ -25,6 +25,18 @@
 	color: white;
 	font-weight: bold;
 }
+#cloud-component.magnified {
+	background: none !important;
+	outline: none !important;
+	top: 50px !important;
+	left: 50px !important;
+	right: 50px !important;
+	text-align: center;
+}
+#cloud-component.magnified > img {
+	display: inline-block;
+}
+
 .warning, .info {
 	text-align: center;
 }

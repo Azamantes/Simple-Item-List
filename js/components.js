@@ -43,7 +43,7 @@ Vue.component('vue-items', {
 		<table>
 			<thead @click='$sort'>
 				<th>Name</th>
-				<th>Amount</th>
+				<th>Quantity</th>
 				<th>Type</th>
 				<th>Actions</th>
 				<th>Image</th>
@@ -114,17 +114,17 @@ Vue.component('vue-item', {
 			<td>( {{ item.amount }} )</td>
 			<td>{{ item.type }}</td>
 			<td>
-				<button data-click='plus'>Dodaj</button>
+				<button data-click='plus'>Plus</button>
 				<input placeholder='sztuk' ref='input'>
-				<button data-click='minus'>Odejmij</button>
-				<button data-click='remove'>Usuń</button>
+				<button data-click='minus'>Minus</button>
+				<button data-click='remove'>Delete</button>
 			</td>
 			<td v-if='item.image'>
 				<img :src='item.image' width=64 height=64></img>
 			</td>
 			<td v-else>No image...</td>
 			<td v-if='config.showDescription'>
-				{{item.desc || 'Brak opisu...'}}
+				{{item.desc || 'No description...'}}
 			</td>
 		</tr>
 	`,
