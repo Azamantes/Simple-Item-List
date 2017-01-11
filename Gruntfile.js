@@ -1,4 +1,4 @@
-module.exports = grunt => {
+module.exports = (grunt) => {
 	'use strict';
 
 	const watchlist = {
@@ -11,33 +11,16 @@ module.exports = grunt => {
 		html: ['index.html'],
 		css: ['style.css'],
 	};
-
+	const options = {
+		livereload: true,
+		interrupt: true,
+		reload: true,
+	};
 	grunt.initConfig({
 		watch: {
-			js: {
-				files: watchlist.js,
-				options: {
-					livereload: true,
-					interrupt: true,
-					reload: true,
-				},
-			},
-			html: {
-				files: watchlist.html,
-				options: {
-					livereload: true,
-					interrupt: true,
-					reload: true,
-				},
-			},
-			css: {
-				files: watchlist.css,
-				options: {
-					livereload: true,
-					interrupt: true,
-					reload: true,
-				},
-			},
+			js: { files: watchlist.js, options },
+			html: { files: watchlist.html, options },
+			css: { files: watchlist.css, options },
 		},
 	});
 

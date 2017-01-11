@@ -10,12 +10,19 @@
 // 	},
 // });
 
-const store = {
-	set(property, value) {
-		localStorage.setItem(property, JSON.stringify(value));
-		return value;
-	},
-	get(property) {
-		return JSON.parse(localStorage.getItem(property));
-	},
-};
+const store = (function() {
+	let $ID = 0;
+
+	return {
+		set(property, value) {
+			localStorage.setItem(property, JSON.stringify(value));
+			fs.writeFile(`${PATH}/baza.dat`, JSON.stringify({
+				types, list, config
+			}));
+			return value;
+		},
+		get(property) {
+			return JSON.parse(localStorage.getItem(property));
+		},
+	};
+}());

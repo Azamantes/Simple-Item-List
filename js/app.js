@@ -1,20 +1,21 @@
 'use strict';
 
+Object.copy = (data) => JSON.parse(JSON.stringify(data));
 function cancel(event) {
-	for (let node of Object.entries(this.$refs)) {
-		node.value = '';
+	for (let key of Object.keys(this.$refs)) {
+		this.$refs[key].value = '';
 	}
 	clearTimeout(this.$data.timer);
 	this.channel.$emit('close.cloud');
 };
-function setTimer() {
-	setTimeout(() => {
-		this.$data.info = this.$data.warn = false;
-		if ('invalid' in this.$data) {
-			this.$data.invalid = false;
-		}
-	}, 1e3);
-};
+// function setTimer() {
+// 	setTimeout(() => {
+// 		this.$data.info = this.$data.warn = false;
+// 		if ('invalid' in this.$data) {
+// 			this.$data.invalid = false;
+// 		}
+// 	}, 1e3);
+// };
 const getData = () => ({
 	timer: 0,
 	info: false,
@@ -25,13 +26,13 @@ const App = new Vue({
 	template: `
 		<div id='app' class='noselect'>
 			<div id='controls'>
-				<vue-types ref='type'></vue-types>
-				<input placeholder='Czego szukasz?' ref='filter' @input='filter'>
+				<vue-types ref='types'></vue-types>
+				<input placeholder='Czego szukasz?' @input='filterName'>
 				<button @click='addElement'>Dodaj element</button>
 				<button @click='addType'>Dodaj typ</button>
 				<label><input type='checkbox' @change='showDesc' ref='config_desc'>Pokaż opisy</label>
 			</div>
-			<vue-items :click='changeElement' :channel='channel'></vue-items>
+			<vue-items ref='table' :channel='channel'></vue-items>
 			<div id='cloud' v-if='cloud'>
 				<div id='fog'></div>
 				<component
@@ -44,6 +45,13 @@ const App = new Vue({
 		</div>
 	`,
 	mounted() {
+		window.addEventListener('keydown', event => {
+			if (event.key === 'Escape') {
+				this.$data.channel.$emit('close.cloud');
+			}
+		});
+		this.$refs.table.$el.children[1].addEventListener('click', this.changeElement);
+		this.$refs.types.$el.addEventListener('change', this.filterType);
 		this.$data.channel.$on('close.cloud', () => {
 			this.$data.cloud = false;
 		});
@@ -96,14 +104,17 @@ const App = new Vue({
 							Dodano nowy typ.
 						</h3>
 
-						<div>Nazwa: <input ref='name' placeholder='nazwa przedmiotu'></div>
+						<div>Nazwa:
+							<input ref='name'	@keydown.enter='commit'
+							placeholder='nazwa przedmiotu'>
+						</div>
 						<div>Sztuk: <input ref='amount' type='number' min='0' step='1'
 							pattern='^[0-9]+$' placeholder='sztuk' value='1'>
 						</div>
 						<div>Typ: <vue-types ref='type'></vue-types></div>
 						<div class='higher'>Opis: <textarea ref='desc' placeholder='Opis przedmiotu...'></textarea></div>
 						<div>
-							<button @click='cancel'>{{ done }}</button>
+							<button @click='cancel'>Anuluj</button>
 							<button @click='commit'>{{ mode }}</button>
 						</div>
 					</div>
@@ -116,13 +127,12 @@ const App = new Vue({
 			data: () => Object.assign({}, getData(), {
 				invalid: false,
 				mode: '',
-				done: 'Anuluj',
 			}),
 			mounted() {
 				if (this.toChange !== null) {
 					this.$refs.name.value = this.toChange.name;
 					this.$refs.amount.value = this.toChange.amount;
-					this.$refs.type.value = this.toChange.type;
+					this.$refs.type.$el.value = this.toChange.type;
 					this.$refs.desc.value = this.toChange.desc;
 				}
 
@@ -142,25 +152,25 @@ const App = new Vue({
 					);
 
 					store.set('list', list);
+					if (!this.$data.warn && !this.$data.invalid) {
+						this.channel.$emit('close.cloud');
+					}
 				},
 				add(name, amount, type,  desc) {
 					if (!name) {
 						this.$data.invalid = true;
-						this.setTimer();
 						return;
 					}
 
+					this.$data.invalid = false;
 					this.$data.warn = list.some(item => (item.name === name));
 					this.$data.info = !this.$data.warn;
-					this.setTimer();
 					if (!this.$data.warn) {
-						list.push({ name, amount, type, desc });
-						this.$data.done = 'OK';
+						list.push({ name, amount, type, desc, visible: true });
 					}
 				},
 				change(name, amount, type,  desc) {
 					const $ = this.toChange;
-
 					if ($.name !== name) {
 						let i = list.length;
 						while (i--) {
@@ -169,8 +179,6 @@ const App = new Vue({
 							}
 							if (list[i].name === name) {
 								this.$data.warn = true;
-								this.$data.done = 'Anuluj';
-								this.setTimer();
 								return;
 							}
 						}
@@ -180,8 +188,6 @@ const App = new Vue({
 					if ($.amount !== amount) $.amount = amount;
 					if ($.type !== type) $.type = type;
 					if ($.desc !== desc) $.desc = desc;
-
-					this.$data.done = 'OK';
 				},
 				showMessage() {
 
@@ -190,7 +196,6 @@ const App = new Vue({
 					this.channel.$emit('done');
 					cancel.call(this, event);
 				},
-				setTimer,
 				focus() {
 					this.$refs.name.focus();
 				},
@@ -204,10 +209,10 @@ const App = new Vue({
 						<h3 v-if='warn' class='warning'>
 							Ten typ już istnieje.
 						</h3>
-						<h3 v-if='info' id='info'>
+						<h3 v-if='info' class='info'>
 							Dodano nowy typ.
 						</h3>
-						<div>Nazwa: <input ref='name'></div>
+						<div>Nazwa: <input ref='name' v-on:keydown.enter='add'></div>
 						<div>
 							<button @click='cancel'>Anuluj</button>
 							<button @click='add'>Dodaj</button>
@@ -226,16 +231,16 @@ const App = new Vue({
 
 					this.$data.warn = types.includes(name)
 					this.$data.info = !this.$data.warn;
-					this.setTimer();
 					if (this.$data.warn) {
 						return;
 					}
 
+					this.$refs.name.value = '';
 					types.push(name);
 					store.set('types', types);
+					this.channel.$emit('close.cloud');
 				},
 				cancel,
-				setTimer,
 				focus() {
 					this.$refs.name.focus();
 				},
@@ -250,7 +255,7 @@ const App = new Vue({
 		changeElement(event) {
 			const $ = event.target;
 			const $$ = $.parentNode;
-			if ($$.tagName !== 'LI' || $$.firstElementChild !== $) {
+			if ($$.tagName !== 'TR' || $$.firstElementChild !== $) {
 				return;
 			}
 
@@ -260,14 +265,17 @@ const App = new Vue({
 		},
 		addElement(event) {
 			this.$data.currentComponent = types.length ? '$element' : '$alert';
-			this.$data.cloud = true;			
+			this.$data.cloud = true;
 		},
 		addType(event) {
 			this.$data.currentComponent = '$type';
 			this.$data.cloud = true;
 		},
-		filter(event) {
-			this.$data.channel.$emit('filter', event.target.value);
+		filterType(event) {
+			this.$data.channel.$emit('filter', 'type', event.target.value);
+		},
+		filterName(event) {
+			this.$data.channel.$emit('filter', 'name', event.target.value);
 		},
 	},
 });

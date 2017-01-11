@@ -1,26 +1,65 @@
 <meta charset="UTF-8">
 <title>Item management app</title>
 
-<link rel='stylesheet' href='css/style.css'>
-<link rel='stylesheet' href='css/cloud.css'>
+<link rel='stylesheet' href='./css/style.css'>
+<link rel='stylesheet' href='./css/cloud.css'>
 
 <script src='js/store.js'></script>
 <script>
-
-const types = store.get('types') || store.set('types', []);
-const list = store.get('list') || store.set('list', []);
-const config = store.get('config') || store.set('config', {
-	showDescription: false,
-	visible: list.map(({ name }) => name),
+const PATH = __dirname;
+const fs = require('fs');
+let types = null;
+let list = null;
+let config = null;
+let copy = '';
+const $default = JSON.stringify({
+	config: {
+		showDescription: false,
+		visible: [],
+	},
+	types: [],
+	list: [],
 });
 
+try {
+	copy = fs.readFileSync(`${PATH}/baza.dat`).toString();
+} catch (error) {
+	copy = JSON.stringify({
+		config: {
+			showDescription: false,
+			visible: [],
+		},
+		types: [],
+		list: [],
+	});
+} finally {
+	!copy.trim() && (copy = JSON.stringify({
+		config: {
+			showDescription: false,
+			visible: [],
+		},
+		types: [],
+		list: [],
+	}));
+
+	fs.writeFileSync(`${PATH}/baza.bak`, copy);
+	const { types: $1, list: $2, config: $3 } = JSON.parse(copy);
+	types = $1;
+	list = $2;
+	config = $3;
+}
 </script>
+
+<style>
+	
+</style>
+
 <body>
 	<div></div>
 </body>
 
 <script src='//localhost:35729/livereload.js'></script>
-<script src='../libraries/prototype.js'></script>
+<!-- <script src='../libraries/prototype.js'></script> -->
 <script src='libraries/vue.prod.js'></script>
 <script src='js/components.js'></script>
 <script src='js/app.js'></script>
@@ -32,7 +71,6 @@ window.addEventListener('keydown', event => {
 		window.location = window.location;
 	}
 });
-
 App.$mount('div');
 
 </script>
