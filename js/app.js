@@ -158,8 +158,6 @@ const App = new Vue({
 					const desc = this.$refs.desc.value;
 					const $image = this.$refs.image.files[0];
 					const image = $image ? $image.path : '';
-					
-					console.log(image);
 
 					(this.toChange === null
 						? this.add(name, amount, type,  desc, image)
@@ -209,8 +207,6 @@ const App = new Vue({
 					if ($.type !== type) $.type = type;
 					if ($.desc !== desc) $.desc = desc;
 					if ($.image !== image) $.image = image;
-
-					console.log('image:', $.image);
 				},
 				cancel(event) {
 					this.channel.$emit('done');

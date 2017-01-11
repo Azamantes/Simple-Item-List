@@ -120,7 +120,7 @@ Vue.component('vue-item', {
 				<button data-click='remove'>Usuń</button>
 			</td>
 			<td v-if='item.image'>
-				<img  :src='item.image' width=64 height=64></img>
+				<img :src='item.image' width=64 height=64></img>
 			</td>
 			<td v-else>No image...</td>
 			<td v-if='config.showDescription'>
