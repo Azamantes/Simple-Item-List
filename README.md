@@ -15,6 +15,7 @@ You can add new types at any moment. *Before adding any new items*, <b>at least 
 	<li>click 'plus/minus' :: add/subtract <b>1</b> (or input.value if specified) to/from item's quantity</li>
 	<li>click 'delete' :: remove the given item</li>
 	<li>click on minimized icon :: see magnified image</li>
+	<li>click column name :: sort by the given column <b>(name, amount, type)</b></li>
 	<li>tick checkbox in the topbar :: toggle item descriptions</li>
 </ul>
 
