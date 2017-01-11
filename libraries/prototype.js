@@ -1,16 +1,13 @@
-Array.prototype.forEach = function(callback = null) {
-	const length = this.length;
-	let i = -1;
-	
-	while (++i < length) {
+Array.prototype.forEach = function(callback) {
+	let i = this.length;
+	while (i--) {
 		callback(this[i], i, this);
 	}
 };
-Array.prototype.map = function(callback = null) {
+Array.prototype.map = function(callback) {
 	let i = this.length;
 	const array = new Array(i);
-	
-	while (--i + 1) {
+	while (i--) {
 		array[i] = callback(this[i]);
 	}
 
