@@ -11,12 +11,15 @@ You can add new types at any moment. *Before adding any new items*, <b>at least 
 
 <h2>Actions:</h2>
 <ul>
-	<li>click name :: update item's information and confirm your changes afterwards</li>
-	<li>click 'plus/minus' :: add/subtract <b>1</b> (or input.value if specified) to/from item's quantity</li>
-	<li>click 'delete' :: remove the given item</li>
-	<li>click on minimized icon :: see magnified image</li>
-	<li>click column name :: sort by the given column <b>(name, amount, type)</b></li>
-	<li>tick checkbox in the topbar :: toggle item descriptions</li>
+	<li>select type :: show only items of the given type</li>
+	<li>type into search input :: show items whose names contains the input.value (case-sensitive)</li>
+	<li>add item/type</li>
+	<li>tick descriptions :: on/off</li>
+	<li>sort items by clickin on column names <b>(name, amount, type)</b></li>
+	<li>click on item's name :: update item's information and confirm your changes afterwards</li>
+	<li>change item's quantity (+/-) 1 or input.value (if specified)</li>
+	<li>remove item</li>
+	<li>see magnified image</li>
 </ul>
 
 
