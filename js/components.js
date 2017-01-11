@@ -1,32 +1,33 @@
-function onClick(event) {
-	if (event.target.tagName !== 'BUTTON') {
-		return;
-	}
-
-	const value = this.$refs.input.value;
-	switch (event.target.dataset.click) {
-		case 'plus': {
-			this.item.amount += +value || 1;
-			store.set('list', list);
-			break;
-		}
-		case 'minus': {
-			if (this.item.amount > 0) {
-				this.item.amount -= +value || 1;
+const click = {
+	button(event) {
+		const value = this.$refs.input.value;
+		switch (event.target.dataset.click) {
+			case 'plus': {
+				this.item.amount += +value || 1;
+				store.set('list', list);
+				break;
 			}
+			case 'minus': {
+				if (this.item.amount > 0) {
+					this.item.amount -= +value || 1;
+				}
 
-			store.set('list', list);
-			break;
+				store.set('list', list);
+				break;
+			}
+			case 'remove': {
+				list.splice(list.indexOf(this.item), 1);
+				store.set('list', list);
+				break;
+			}
 		}
-		case 'remove': {
-			list.splice(list.indexOf(this.item), 1);
-			store.set('list', list);
-			break;
-		}
-	}
 
-	this.$refs.input.value = '';
-}
+		this.$refs.input.value = '';
+	},
+	img(event) {
+		this.channel.$emit('magnify', this.item.image);
+	},
+};
 Vue.component('vue-types', {
 	template: `
 		<select>
@@ -45,6 +46,7 @@ Vue.component('vue-items', {
 				<th>Amount</th>
 				<th>Type</th>
 				<th>Actions</th>
+				<th>Image</th>
 				<th v-if='config.showDescription'>Opis</th>
 			</thead>
 			<tbody>
@@ -107,7 +109,7 @@ Vue.component('vue-items', {
 });
 Vue.component('vue-item', {
 	template: `
-		<tr @click='onClick' v-show='item.visible'>
+		<tr @click='click' v-show='item.visible'>
 			<td>{{ item.name}}</td>
 			<td>( {{ item.amount }} )</td>
 			<td>{{ item.type }}</td>
@@ -117,12 +119,25 @@ Vue.component('vue-item', {
 				<button data-click='minus'>Odejmij</button>
 				<button data-click='remove'>Usuń</button>
 			</td>
+			<td v-if='item.image'>
+				<img  :src='item.image' width=64 height=64></img>
+			</td>
+			<td v-else>No image...</td>
 			<td v-if='config.showDescription'>
 				{{item.desc || 'Brak opisu...'}}
 			</td>
 		</tr>
 	`,
 	props: ['channel', 'item'],
-	methods: { onClick },
+	methods: {
+		click(event) {
+			const tag = event.target.tagName.toLowerCase();
+			if (!(tag in click)) {
+				return;
+			}
+
+			click[tag].call(this, event);
+		},
+	},
 	data: () => ({ config }),
 });

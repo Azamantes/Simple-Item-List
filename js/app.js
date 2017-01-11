@@ -40,6 +40,7 @@ const App = new Vue({
 					:channel='channel'
 					:is='currentComponent'
 					:toChange='toChange'
+					:image='image'
 				></component>
 			</div>
 		</div>
@@ -50,13 +51,10 @@ const App = new Vue({
 				this.$data.channel.$emit('close.cloud');
 			}
 		});
-		this.$refs.table.$el.children[1].addEventListener('click', this.changeElement);
+		this.$refs.table.$el.children[1].addEventListener('click', this.click);
 		this.$refs.types.$el.addEventListener('change', this.filterType);
 		this.$data.channel.$on('close.cloud', () => {
 			this.$data.cloud = false;
-		});
-		this.$data.channel.$on('change', (event) => {
-			this.change(event);
 		});
 		this.$data.channel.$on('done', () => {
 			this.$data.toChange = null;
@@ -69,6 +67,7 @@ const App = new Vue({
 		currentComponent: '',
 		cloud: false,
 		toChange: null,
+		image: '',
 	}),
 	components: {
 		$alert: {
@@ -87,6 +86,17 @@ const App = new Vue({
 			`,
 			props: ['channel'],
 			methods: { cancel },
+		},
+		$image: {
+			template: `
+				<div class='magnified'>
+					<img :src='image' width='500' height='500'></img>
+				</div>
+			`,
+			props: ['channel', 'image'],
+			data: () => ({
+				src: '',
+			}),
 		},
 		$element: {
 			template: `
@@ -112,6 +122,7 @@ const App = new Vue({
 							pattern='^[0-9]+$' placeholder='sztuk' value='1'>
 						</div>
 						<div>Typ: <vue-types ref='type'></vue-types></div>
+						<div>Image: <input type='file' ref='image'></div>
 						<div class='higher'>Opis: <textarea ref='desc' placeholder='Opis przedmiotu...'></textarea></div>
 						<div>
 							<button @click='cancel'>Anuluj</button>
@@ -136,7 +147,7 @@ const App = new Vue({
 					this.$refs.desc.value = this.toChange.desc;
 				}
 
-				this.focus();
+				this.$refs.name.focus();
 			},
 			methods: {
 				commit() {
@@ -145,10 +156,14 @@ const App = new Vue({
 					const amount = Math.abs(+this.$refs.amount.value);
 					const type = this.$refs.type.$el.value;
 					const desc = this.$refs.desc.value;
+					const $image = this.$refs.image.files[0];
+					const image = $image ? $image.path : '';
 					
+					console.log(image);
+
 					(this.toChange === null
-						? this.add(name, amount, type,  desc)
-						: this.change(name, amount, type, desc)
+						? this.add(name, amount, type,  desc, image)
+						: this.change(name, amount, type, desc, image)
 					);
 
 					store.set('list', list);
@@ -156,7 +171,7 @@ const App = new Vue({
 						this.channel.$emit('close.cloud');
 					}
 				},
-				add(name, amount, type,  desc) {
+				add(name, amount, type, desc, image) {
 					if (!name) {
 						this.$data.invalid = true;
 						return;
@@ -165,11 +180,16 @@ const App = new Vue({
 					this.$data.invalid = false;
 					this.$data.warn = list.some(item => (item.name === name));
 					this.$data.info = !this.$data.warn;
-					if (!this.$data.warn) {
-						list.push({ name, amount, type, desc, visible: true });
-					}
+					!this.$data.warn && list.push({
+						name,
+						amount,
+						type,
+						desc,
+						image,
+						visible: true,
+					});
 				},
-				change(name, amount, type,  desc) {
+				change(name, amount, type,  desc, image) {
 					const $ = this.toChange;
 					if ($.name !== name) {
 						let i = list.length;
@@ -188,16 +208,13 @@ const App = new Vue({
 					if ($.amount !== amount) $.amount = amount;
 					if ($.type !== type) $.type = type;
 					if ($.desc !== desc) $.desc = desc;
-				},
-				showMessage() {
+					if ($.image !== image) $.image = image;
 
+					console.log('image:', $.image);
 				},
 				cancel(event) {
 					this.channel.$emit('done');
 					cancel.call(this, event);
-				},
-				focus() {
-					this.$refs.name.focus();
 				},
 			},
 		},
@@ -223,7 +240,7 @@ const App = new Vue({
 			props: ['channel'],
 			data: getData,
 			mounted() {
-				this.focus();	
+				this.$refs.name.focus();	
 			},
 			methods: {
 				add(event) {
@@ -241,9 +258,6 @@ const App = new Vue({
 					this.channel.$emit('close.cloud');
 				},
 				cancel,
-				focus() {
-					this.$refs.name.focus();
-				},
 			},
 		},
 	},
@@ -252,16 +266,20 @@ const App = new Vue({
 			config.showDescription = event.target.checked;
 			store.set('config', config);
 		},
-		changeElement(event) {
+		click(event) {
 			const $ = event.target;
 			const $$ = $.parentNode;
-			if ($$.tagName !== 'TR' || $$.firstElementChild !== $) {
-				return;
+			if ($$.tagName === 'TR' && $$.firstElementChild === $) {
+				this.$data.toChange = list.find(item => (item.name === $.textContent)) || null;
+				this.$data.currentComponent = '$element';
+				this.$data.cloud = true;
+			} else if ($.tagName === 'IMG') {
+				this.$data.image = $.src;
+				this.$data.currentComponent = '$image';
+				this.$data.cloud = true;
 			}
-
-			this.$data.toChange = list.find(item => (item.name === $.textContent)) || null;
-			this.$data.currentComponent = '$element';
-			this.$data.cloud = true;
+		},
+		changeElement(event) {
 		},
 		addElement(event) {
 			this.$data.currentComponent = types.length ? '$element' : '$alert';

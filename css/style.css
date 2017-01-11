@@ -49,3 +49,19 @@ td:first-child:hover {
 td input {
 	width: 75px;
 }
+td > img {
+	cursor: pointer;
+}
+
+#cloud-component.magnified {
+	position: absolute;
+	background: none !important;
+	outline: none !important;
+	top: 50px !important;
+	left: 50px !important;
+	right: 50px !important;
+	text-align: center;
+}
+#cloud-component.magnified > img {
+	display: inline-block;
+}

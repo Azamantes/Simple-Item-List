@@ -7,6 +7,7 @@
   },
   "dependencies": {
     "grunt": "latest",
-    "grunt-contrib-watch": "latest"
+    "grunt-contrib-watch": "latest",
+    "image-min": "^0.3.2"
   }
 }

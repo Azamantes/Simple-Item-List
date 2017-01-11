@@ -43,10 +43,7 @@ try {
 	}));
 
 	fs.writeFileSync(`${PATH}/baza.bak`, copy);
-	const { types: $1, list: $2, config: $3 } = JSON.parse(copy);
-	types = $1;
-	list = $2;
-	config = $3;
+	({ types, list, config } = JSON.parse(copy));
 }
 </script>
 
@@ -72,5 +69,18 @@ window.addEventListener('keydown', event => {
 	}
 });
 App.$mount('div');
+
+
+// const file = document.images[0];
+// const canvas = document.createElement('canvas');
+// document.body.appendChild(canvas);
+// const c = canvas.getContext('2d');
+
+// c.drawImage(file, 0, 0);
+// canvas.width = 64;
+// canvas.height = 64;
+// const data = canvas.toDataURL('image/png');
+
+// console.log('data:', data);
 
 </script>
